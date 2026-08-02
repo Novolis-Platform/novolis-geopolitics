@@ -1,0 +1,3 @@
+GeoPolity Agent Surface: http://127.0.0.1:18857
+… year 0 (50%)
+… year 1 (100%)

@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <PackageId>Novolis.Geopolitics.Core</PackageId>
+    <IsPackable>true</IsPackable>
+    <RootNamespace>Novolis.Geopolitics.Core</RootNamespace>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+    <Description>
+      Geopolitics domain model: polities, provinces, relations, treaties, wars, and world state.
+    </Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="data\world-seed.json"
+                      Condition="Exists('data\world-seed.json')"
+                      LogicalName="Novolis.Geopolitics.Core.data.world-seed.json" />
+  </ItemGroup>
+</Project>

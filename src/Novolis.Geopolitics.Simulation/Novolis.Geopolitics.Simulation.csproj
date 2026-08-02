@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <PackageId>Novolis.Geopolitics.Simulation</PackageId>
+    <IsPackable>true</IsPackable>
+    <RootNamespace>Novolis.Geopolitics.Simulation</RootNamespace>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+    <Description>
+      Day/month geopolitics tick: budgets, combat, treaties, and deterministic AI agendas.
+    </Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Novolis.Geopolitics.Core\Novolis.Geopolitics.Core.csproj" />
+  </ItemGroup>
+</Project>

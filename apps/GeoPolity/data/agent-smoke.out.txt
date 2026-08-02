@@ -1,0 +1,57 @@
+=== GeoPolity headless report ===
+Years: 1  Elapsed: 2,11s
+Polities: 200  Provinces: 993
+Day: 360 (Y1)
+Wars started/ended: 0/0  active: 0
+Provinces captured: 0  ownership churn: 0
+Treaties signed: 439  active: 439
+Orgs: 34 (joins 52/leaves 0)
+Common markets: 25  volume 933
+World market volume: 12000
+EP GDP boost (cum): 79911
+Embargoes: 0  aid transferred: 21683
+Resource shortage ticks: 2299
+Budget crises: 0  insolvent now: 0
+Mean legitimacy/approval: 0,81/0,63
+Tech advances: 515
+Supranationals:
+  Aurora Forum: members=14 treaties=1
+  Aurora Defence Pact: members=6 treaties=2
+  Aurora Free Trade Area: members=7 treaties=1
+  Aurora Customs Union: members=5 treaties=1
+  Aurora Union: members=3 treaties=5
+  Boreal Forum: members=17 treaties=1
+  Boreal Defence Pact: members=4 treaties=2
+  Boreal Free Trade Area: members=6 treaties=1
+  Boreal Research Council: members=5 treaties=1
+  Cinder Forum: members=11 treaties=1
+  Cinder Defence Pact: members=4 treaties=2
+  Cinder Free Trade Area: members=5 treaties=1
+  Cinder Customs Union: members=4 treaties=1
+  Delta Forum: members=16 treaties=1
+  Delta Defence Pact: members=4 treaties=2
+  Delta Free Trade Area: members=5 treaties=1
+  Delta Research Council: members=5 treaties=1
+  Ember Forum: members=13 treaties=1
+  Ember Defence Pact: members=4 treaties=2
+  Ember Free Trade Area: members=6 treaties=1
+  Ember Customs Union: members=6 treaties=1
+  Frost Forum: members=18 treaties=1
+  Frost Defence Pact: members=5 treaties=2
+  Frost Free Trade Area: members=7 treaties=1
+  Frost Research Council: members=7 treaties=1
+  Gale Forum: members=10 treaties=1
+  Gale Defence Pact: members=4 treaties=2
+  Gale Free Trade Area: members=5 treaties=1
+  Gale Customs Union: members=4 treaties=1
+  Haven Forum: members=17 treaties=1
+  Haven Defence Pact: members=4 treaties=2
+  Haven Free Trade Area: members=7 treaties=1
+  Haven Research Council: members=5 treaties=1
+  World Assembly: members=8 treaties=1
+Top 5 power:
+  Belstan: power=2458 gdp=952997 mil=1047 tech=2,6 gov=Democracy L=0,68 A=0,53
+  Belesk: power=2311 gdp=900366 mil=1017 tech=2,1 gov=Democracy L=0,95 A=0,93
+  Zenstanria: power=2288 gdp=790572 mil=1049 tech=2,4 gov=Democracy L=1,00 A=0,93
+  Oshgard: power=2280 gdp=803839 mil=1065 tech=2,1 gov=Democracy L=0,95 A=0,71
+  Pelara: power=2233 gdp=938209 mil=948 tech=1,9 gov=Democracy L=1,00 A=0,79

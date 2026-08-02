@@ -1,0 +1,15 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Novolis.Geopolitics.Core/Novolis.Geopolitics.Core.csproj" />
+    <Project Path="src/Novolis.Geopolitics.Simulation/Novolis.Geopolitics.Simulation.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Novolis.Geopolitics.Unit/Novolis.Geopolitics.Unit.csproj" />
+  </Folder>
+  <Folder Name="/apps/">
+    <Project Path="apps/GeoPolity/GeoPolity.csproj" />
+  </Folder>
+  <Folder Name="/tools/">
+    <Project Path="tools/SeedGen/SeedGen.csproj" />
+  </Folder>
+</Solution>

@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>SeedGen</RootNamespace>
+    <IsPackable>false</IsPackable>
+    <NovolisStackAnalyzers>false</NovolisStackAnalyzers>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Novolis.Geopolitics.Core\Novolis.Geopolitics.Core.csproj" />
+  </ItemGroup>
+</Project>
