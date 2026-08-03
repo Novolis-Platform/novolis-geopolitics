@@ -6,8 +6,11 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>$(NoWarn);CS1591</NoWarn>
     <Description>
-      Geopolitics kernel: polities, provinces, relations, treaties, wars, and the civic/fiscal
-      stock-flow engine. No RNG, combat, trade, AI, or fiction seed data.
+      Geopolitics kernel: polities, provinces, relations, treaties, wars, and civic/fiscal
+      stock-flow (delegates nation civic settlement to Novolis.Civics.Core).
     </Description>
   </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Novolis.Civics.Core" />
+  </ItemGroup>
 </Project>

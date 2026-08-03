@@ -65,6 +65,12 @@ as `Novolis.Economy.Production` or `Novolis.Economy.Logistics` can be tested ind
 | Resource holdings / shortages | `ResourceVector` `Balance` → approval and growth drag |
 | Out of Core: production ops, logistics, markets | Out of Core: conflict, diplomacy, trade, policy agendas |
 
+## Civics kinship (`novolis-civics`)
+
+`CivicEngine.ApplyMonth` delegates nation stock–flow to [`Novolis.Civics.Core`](../../novolis-civics/src/Novolis.Civics.Core/SPEC.md)
+and applies force-domain growth from `ForceCapabilityDemand`. Cash conservation remains Economy;
+territory/war remain Geopolitics.
+
 ## Month order (why)
 
 1. **Trade** (`TradeClearing.RunMonth`) — domestic + common-market + world-market write `Balance`

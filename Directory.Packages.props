@@ -11,6 +11,7 @@
     <PackageVersion Include="Novolis.Agent.Core" Version="2026.1.*" />
     <PackageVersion Include="Novolis.Agent.Surface" Version="2026.1.*" />
     <PackageVersion Include="Novolis.Analyzers.StackBoundaries" Version="2026.1.*" />
+    <PackageVersion Include="Novolis.Civics.Core" Version="2026.1.*" />
     <PackageVersion Include="Novolis.Avalonia.Agent" Version="2026.1.*" />
     <PackageVersion Include="Novolis.Avalonia.Agent.Protocol" Version="2026.1.*" />
     <PackageVersion Include="Novolis.Avalonia.Briefing" Version="2026.1.*" />
