@@ -51,4 +51,8 @@
   </ItemGroup>
   <Import Project="$(MSBuildThisFileDirectory)..\novolis-governance\build\Novolis.GitHubPackages.props"
           Condition="Exists('$(MSBuildThisFileDirectory)..\novolis-governance\build\Novolis.GitHubPackages.props')" />
+  <Import Project="$(MSBuildThisFileDirectory)..\novolis-governance\build\Novolis.PackageReadme.props"
+          Condition="Exists('$(MSBuildThisFileDirectory)..\novolis-governance\build\Novolis.PackageReadme.props')" />
+  <Import Project="$(MSBuildThisFileDirectory)..\novolis-governance\build\Novolis.PackageIcon.props"
+          Condition="Exists('$(MSBuildThisFileDirectory)..\novolis-governance\build\Novolis.PackageIcon.props')" />
 </Project>
