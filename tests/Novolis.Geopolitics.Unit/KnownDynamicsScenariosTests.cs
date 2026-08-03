@@ -129,12 +129,13 @@ public sealed class KnownDynamicsScenariosTests
     [Test]
     public async Task Resource_Shortage_From_Balance_Hurts_Approval_In_Pipeline()
     {
-        var world = Tiny.BorderWorld();
-        var alpha = world.Polity(new PolityId(0));
-        alpha.Balance[ResourceKind.Food] = -80_000;
-        var app0 = alpha.Civic.Approval;
-        CivicPipeline.RunMonth(world, new WorldTelemetry());
-        await Assert.That(alpha.Civic.Approval).IsLessThan(app0);
+        var shortWorld = Tiny.BorderWorld();
+        var calmWorld = Tiny.BorderWorld();
+        shortWorld.Polity(new PolityId(0)).Balance[ResourceKind.Food] = -200_000;
+        CivicPipeline.RunMonth(shortWorld, new WorldTelemetry());
+        CivicPipeline.RunMonth(calmWorld, new WorldTelemetry());
+        await Assert.That(shortWorld.Polity(new PolityId(0)).Civic.Approval)
+            .IsLessThan(calmWorld.Polity(new PolityId(0)).Civic.Approval);
     }
 
     [Test]
@@ -317,6 +318,9 @@ public sealed class KnownDynamicsScenariosTests
     public async Task Research_Partnership_Sets_Pipeline_Multiplier()
     {
         var world = Tiny.BorderWorld();
+        // Keep GDP-only tax so one month of infra does not blow past the tech threshold.
+        foreach (var pr in world.Provinces)
+            pr.Population = 0;
         var a = world.Polity(new PolityId(0));
         a.Policy.InfrastructureShare = 0.9;
         a.Policy.PropagandaShare = 0.1;
@@ -326,14 +330,19 @@ public sealed class KnownDynamicsScenariosTests
             world, stats, TreatyKind.ResearchPartnership, new PolityId(0), new PolityId(1), 1000);
 
         var twin = Tiny.BorderWorld();
+        foreach (var pr in twin.Provinces)
+            pr.Population = 0;
         var b = twin.Polity(new PolityId(0));
         b.Policy.InfrastructureShare = 0.9;
         b.Policy.PropagandaShare = 0.1;
         b.Gdp = a.Gdp;
-        b.TechProgress = a.TechProgress = 0;
-        b.TechLevel = a.TechLevel = 1.0;
+        a.TechProgress = 0;
+        b.TechProgress = 0;
+        a.TechLevel = 1.0;
+        b.TechLevel = 1.0;
         b.Stability = a.Stability;
         b.Civic.HumanDevelopment = a.Civic.HumanDevelopment;
+        b.Treasury = a.Treasury;
 
         CivicPipeline.RunMonth(world, stats);
         CivicPipeline.RunMonth(twin, new WorldTelemetry());
@@ -402,6 +411,7 @@ public sealed class KnownDynamicsScenariosTests
         {
             TradeClearing.RunMonth(world, stats);
             CivicPipeline.RunMonth(world, stats);
+            PopulationMigration.RunMonth(world, stats);
             TreatyEffects.RunMonth(world, stats);
             world.Day += WorldState.DaysPerMonth;
         }
@@ -477,6 +487,78 @@ public sealed class KnownDynamicsScenariosTests
         strong.Stability = 0.95;
         weak.Stability = 0.4;
         await Assert.That(strong.PowerScore).IsGreaterThan(weak.PowerScore);
+    }
+
+    // ─── Population migration ─────────────────────────────────────────────────
+
+    [Test]
+    public async Task High_Tax_Polity_Loses_Population_To_Low_Tax_Neighbor()
+    {
+        var world = Tiny.BorderWorld();
+        world.Provinces[0].Population = 2_000_000;
+        world.Provinces[1].Population = 2_000_000;
+        var alpha = world.Polity(new PolityId(0));
+        var beta = world.Polity(new PolityId(1));
+        alpha.Policy.HouseholdTaxRate = 0.45;
+        alpha.Civic.HumanDevelopment = 0.35;
+        alpha.Civic.EmigrationPressure = 0.8;
+        alpha.Civic.ImmigrationAttractiveness = 0.2;
+        beta.Policy.HouseholdTaxRate = 0.12;
+        beta.Civic.HumanDevelopment = 0.7;
+        beta.Civic.EmigrationPressure = 0.1;
+        beta.Civic.ImmigrationAttractiveness = 0.85;
+
+        var popA0 = world.OwnedPopulation(alpha.Id);
+        var stats = new WorldTelemetry();
+        for (var i = 0; i < 6; i++)
+            PopulationMigration.RunMonth(world, stats);
+
+        await Assert.That(world.OwnedPopulation(alpha.Id)).IsLessThan(popA0);
+        await Assert.That(stats.PopulationMigrated).IsGreaterThan(0);
+    }
+
+    [Test]
+    public async Task Pop_Weighted_Control_Is_Zero_When_All_Home_Pop_Lost()
+    {
+        var world = Tiny.BorderWorld();
+        world.Provinces[0].Population = 1_000_000;
+        world.Provinces[1].Population = 1_000_000;
+        world.Provinces[0].OwnerId = new PolityId(1);
+        var ratio = world.PopWeightedControlRatio(new PolityId(0));
+        await Assert.That(Near(ratio, 0.0)).IsTrue();
+        var betaCtrl = world.PopWeightedControlRatio(new PolityId(1));
+        await Assert.That(betaCtrl).IsGreaterThan(0.99);
+    }
+
+    [Test]
+    public async Task Occupied_Province_Produces_Migration_Over_Months()
+    {
+        var world = Tiny.BorderWorld();
+        world.Provinces[0].Population = 3_000_000;
+        world.Provinces[1].Population = 3_000_000;
+        world.Provinces[0].OwnerId = new PolityId(1);
+        var beta = world.Polity(new PolityId(1));
+        var alpha = world.Polity(new PolityId(0));
+        beta.Civic.EmigrationPressure = 0.2;
+        beta.Policy.HouseholdTaxRate = 0.3;
+        alpha.Civic.ImmigrationAttractiveness = 0.9;
+        var stats = new WorldTelemetry();
+        for (var i = 0; i < 4; i++)
+            PopulationMigration.RunMonth(world, stats);
+        await Assert.That(stats.PopulationMigrated).IsGreaterThan(0);
+    }
+
+    [Test]
+    public async Task Civic_With_World_Sets_Emigration_Pressure_From_High_Tax()
+    {
+        var world = Tiny.BorderWorld();
+        world.Provinces[0].Population = 2_000_000;
+        world.Provinces[1].Population = 2_000_000;
+        var alpha = world.Polity(new PolityId(0));
+        alpha.Policy.HouseholdTaxRate = 0.48;
+        alpha.Policy.TransferShare = 0.08;
+        CivicEngine.ApplyMonth(alpha, Tiny.Peace(), world);
+        await Assert.That(alpha.Civic.EmigrationPressure).IsGreaterThan(0.4);
     }
 
     static bool Near(double a, double b) => Math.Abs(a - b) < Eps;

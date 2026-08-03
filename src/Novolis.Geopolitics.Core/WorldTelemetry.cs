@@ -28,4 +28,6 @@ public sealed class WorldTelemetry
     public int ResourceShortageEvents { get; set; }
     public double MeanLegitimacy { get; set; }
     public double MeanApproval { get; set; }
+    public double PopulationMigrated { get; set; }
+    public double RefugeesDisplaced { get; set; }
 }

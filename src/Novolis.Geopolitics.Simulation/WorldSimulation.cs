@@ -54,9 +54,10 @@ public sealed class WorldSimulation
 
         if (World.Day % WorldState.DaysPerMonth == 0)
         {
-            // Trade first so resource balances feed civic approval/growth this period.
+            // Trade → Civics (pressures) → PopulationMigration → Treaty → Agents
             TradeClearing.RunMonth(World, Telemetry);
             CivicPipeline.RunMonth(World, Telemetry);
+            PopulationMigration.RunMonth(World, Telemetry);
             TreatyEffects.RunMonth(World, Telemetry);
             _policyAgent.RunMonth(World, Telemetry);
         }

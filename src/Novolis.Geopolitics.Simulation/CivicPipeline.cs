@@ -17,9 +17,7 @@ public static class CivicPipeline
 
         foreach (var polity in world.Polities)
         {
-            var owned = world.CountOwnedProvinces(polity.Id);
-            var home = world.Provinces.Count(p => p.HomePolityId == polity.Id);
-            var control = home == 0 ? 1.0 : owned / (double)home;
+            var control = world.PopWeightedControlRatio(polity.Id);
             var wars = world.ActiveWars.Count(w => w.Attacker == polity.Id || w.Defender == polity.Id);
             var shortage = ResourceKinds.All.Sum(k => polity.Balance[k] < 0 ? -polity.Balance[k] : 0);
             var occupying = world.Provinces.Any(p => p.OwnerId == polity.Id && p.HomePolityId != polity.Id);
@@ -39,7 +37,8 @@ public static class CivicPipeline
                 OccupyingForeignLand = occupying,
                 LostHomeProvinces = lostHome,
                 ResearchMultiplier = researchMult,
-            });
+                NetMigration = polity.Civic.LastNetMigration,
+            }, world);
 
             if (polity.TechLevel > beforeTech + 0.05)
             {

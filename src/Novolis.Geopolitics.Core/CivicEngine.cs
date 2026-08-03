@@ -21,15 +21,18 @@ public static class CivicEngine
 
         /// <summary>External research multiplier (e.g. ResearchPartnership treaty) ≥ 1.</summary>
         public double ResearchMultiplier { get; init; } = 1.0;
+
+        /// <summary>Optional host net migration (people) applied this civic period.</summary>
+        public double? NetMigration { get; init; }
     }
 
     /// <summary>Apply one month of fiscal + civic dynamics for a single polity.</summary>
-    public static void ApplyMonth(Polity polity, MonthContext ctx)
+    public static void ApplyMonth(Polity polity, MonthContext ctx, WorldState? world = null)
     {
         ArgumentNullException.ThrowIfNull(polity);
         ArgumentNullException.ThrowIfNull(ctx);
 
-        var nation = ToNation(polity);
+        var nation = ToNation(polity, world);
         var period = new PeriodContext
         {
             ControlRatio = ctx.ControlRatio,
@@ -38,12 +41,16 @@ public static class CivicEngine
             OccupyingForeignLand = ctx.OccupyingForeignLand,
             LostHomeTerritory = ctx.LostHomeProvinces,
             ResearchMultiplier = ctx.ResearchMultiplier,
+            NetMigration = ctx.NetMigration ?? (polity.Civic.LastNetMigration != 0
+                ? polity.Civic.LastNetMigration
+                : null),
         };
 
         var outcome = CivicsEngine.ApplyPeriod(nation, period);
         CopyBack(polity, nation);
+        polity.Civic.EmigrationPressure = outcome.EmigrationPressure;
+        polity.Civic.ImmigrationAttractiveness = outcome.ImmigrationAttractiveness;
 
-        // Force-domain stocks remain geopolitical; Civics only emits capability demand.
         var upkeepFactor = CivicsGovRules.MilitaryUpkeepFactor((CivicsGov)(int)polity.Government);
         var demand = outcome.ForceCapabilityDemand;
         polity.Military.Land += demand * 0.55;
@@ -55,7 +62,7 @@ public static class CivicEngine
         polity.MilitaryBudgetShare = Math.Clamp(polity.Policy.MilitaryShare, 0, 0.7);
     }
 
-    private static NationState ToNation(Polity polity)
+    private static NationState ToNation(Polity polity, WorldState? world)
     {
         var nation = new NationState
         {
@@ -82,6 +89,14 @@ public static class CivicEngine
         nation.Civic.WarFatigue = polity.Civic.WarFatigue;
         nation.Civic.LastTaxCollected = polity.Civic.LastTaxCollected;
         nation.Civic.LastTransfersPaid = polity.Civic.LastTransfersPaid;
+
+        // Sync demography from owned provinces when world is available.
+        if (world is not null)
+        {
+            nation.Demography.Population = world.OwnedPopulation(polity.Id);
+            nation.Demography.LastNetMigration = polity.Civic.LastNetMigration;
+            nation.Demography.LastEmigrationPressure = polity.Civic.EmigrationPressure;
+        }
 
         return nation;
     }

@@ -68,6 +68,15 @@ public sealed class CivicState
     /// <summary>Last period transfers paid (flow scratch).</summary>
     public double LastTransfersPaid { get; set; }
 
+    /// <summary>Last Civics emigration pressure [0, 1].</summary>
+    public double EmigrationPressure { get; set; }
+
+    /// <summary>Last Civics immigration attractiveness [0, 1].</summary>
+    public double ImmigrationAttractiveness { get; set; }
+
+    /// <summary>Last period net migration into this polity (people).</summary>
+    public double LastNetMigration { get; set; }
+
     public CivicState Clone() => new()
     {
         Legitimacy = Legitimacy,
@@ -77,6 +86,9 @@ public sealed class CivicState
         WarFatigue = WarFatigue,
         LastTaxCollected = LastTaxCollected,
         LastTransfersPaid = LastTransfersPaid,
+        EmigrationPressure = EmigrationPressure,
+        ImmigrationAttractiveness = ImmigrationAttractiveness,
+        LastNetMigration = LastNetMigration,
     };
 }
 

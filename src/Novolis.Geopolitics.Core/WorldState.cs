@@ -142,6 +142,24 @@ public sealed class WorldState
     public int CountOwnedProvinces(PolityId polity) =>
         Provinces.Count(p => p.OwnerId == polity);
 
+    public double OwnedPopulation(PolityId polity) =>
+        Provinces.Where(p => p.OwnerId == polity).Sum(p => p.Population);
+
+    public double HomePopulation(PolityId polity) =>
+        Provinces.Where(p => p.HomePolityId == polity).Sum(p => p.Population);
+
+    /// <summary>Population-weighted control of home territory (owned home pop / home pop).</summary>
+    public double PopWeightedControlRatio(PolityId polity)
+    {
+        var home = HomePopulation(polity);
+        if (home <= 0)
+            return 1.0;
+        var ownedHome = Provinces
+            .Where(p => p.HomePolityId == polity && p.OwnerId == polity)
+            .Sum(p => p.Population);
+        return ownedHome / home;
+    }
+
     public double TotalPower() => Polities.Sum(p => p.PowerScore);
 
     public int CountActiveTreatiesOfKind(TreatyKind kind) => ActiveTreaties(kind).Count();
