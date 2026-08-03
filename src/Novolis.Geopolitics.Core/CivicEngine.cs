@@ -60,11 +60,12 @@ public static class CivicEngine
         var propagandaEffect = propagandaBudget * GovernmentRules.PropagandaEffectiveness(g);
         polity.Treasury -= infra + propagandaBudget;
 
+        // Capability accumulation from spend — a stock–flow rate, not an instant "build".
         var upkeepFactor = GovernmentRules.MilitaryUpkeepFactor(g);
-        var milBuild = milSpend * 0.65 / 100.0 * (1.0 + polity.TechLevel * 0.05) / upkeepFactor;
-        polity.Military.Land += milBuild * 0.55;
-        polity.Military.Air += milBuild * 0.25;
-        polity.Military.Naval += milBuild * 0.20;
+        var forceGrowth = milSpend * 0.65 / 100.0 * (1.0 + polity.TechLevel * 0.05) / upkeepFactor;
+        polity.Military.Land += forceGrowth * 0.55;
+        polity.Military.Air += forceGrowth * 0.25;
+        polity.Military.Naval += forceGrowth * 0.20;
         polity.Treasury -= milSpend * 0.35 * upkeepFactor;
         polity.Military.Scale(1.0 - 0.008 * upkeepFactor);
 

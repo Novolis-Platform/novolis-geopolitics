@@ -1,19 +1,20 @@
 using Novolis.Geopolitics.Core;
+using Novolis.Geopolitics.Diplomacy;
 
-namespace Novolis.Geopolitics.Simulation;
+namespace Novolis.Geopolitics.Scenarios;
 
 /// <summary>Deterministic post-load setup: varied supranationals per continent + a world forum.</summary>
-public static class WorldBootstrap
+public static class InstitutionSeeder
 {
     /// <summary>Seeds forums, defence pacts, FTAs, customs unions, research councils if none exist.</summary>
-    public static void EnsureContinentOrgs(WorldState world, GeoSimulationStats? stats = null)
+    public static void EnsureContinentOrgs(WorldState world, WorldTelemetry? telemetry = null)
     {
         if (world.Supranationals.Count > 0)
         {
             return;
         }
 
-        stats ??= new GeoSimulationStats();
+        telemetry ??= new WorldTelemetry();
         var continents = world.Polities.Select(p => p.Continent).Distinct().OrderBy(c => c).ToList();
         var assemblySeats = new List<PolityId>();
 
@@ -47,18 +48,18 @@ public static class WorldBootstrap
             // Forum — broad, mid barrier.
             var forum = local.OrderByDescending(Pop).Take(Math.Min(10, local.Count)).Select(p => p.Id).ToList();
             Warm(forum, 18);
-            Diplomacy.CreateOrg(world, stats, $"{continent} Forum", continent, forum, SupranationalKind.Forum);
+            DiplomaticInstruments.CreateOrg(world, telemetry, $"{continent} Forum", continent, forum, SupranationalKind.Forum);
 
             // Defence alliance — top military.
             var defence = local.OrderByDescending(p => p.Military.Total).Take(4).Select(p => p.Id).ToList();
             Warm(defence, 48);
-            Diplomacy.CreateOrg(world, stats, $"{continent} Defence Pact", continent, defence,
+            DiplomaticInstruments.CreateOrg(world, telemetry, $"{continent} Defence Pact", continent, defence,
                 SupranationalKind.DefenceAlliance);
 
             // Free trade — top GDP (may overlap defence).
             var fta = local.OrderByDescending(p => p.Gdp).Take(5).Select(p => p.Id).ToList();
             Warm(fta, 32);
-            Diplomacy.CreateOrg(world, stats, $"{continent} Free Trade Area", continent, fta,
+            DiplomaticInstruments.CreateOrg(world, telemetry, $"{continent} Free Trade Area", continent, fta,
                 SupranationalKind.FreeTradeArea);
 
             // Customs union on even continents; research forum on odd.
@@ -66,14 +67,14 @@ public static class WorldBootstrap
             {
                 var customs = local.OrderByDescending(p => p.Gdp).Take(4).Select(p => p.Id).ToList();
                 Warm(customs, 38);
-                Diplomacy.CreateOrg(world, stats, $"{continent} Customs Union", continent, customs,
+                DiplomaticInstruments.CreateOrg(world, telemetry, $"{continent} Customs Union", continent, customs,
                     SupranationalKind.CustomsUnion);
             }
             else
             {
                 var research = local.OrderByDescending(p => p.TechLevel).Take(5).Select(p => p.Id).ToList();
                 Warm(research, 34);
-                Diplomacy.CreateOrg(world, stats, $"{continent} Research Council", continent, research,
+                DiplomaticInstruments.CreateOrg(world, telemetry, $"{continent} Research Council", continent, research,
                     SupranationalKind.ResearchForum);
             }
 
@@ -82,7 +83,7 @@ public static class WorldBootstrap
             {
                 var union = local.OrderByDescending(p => p.Gdp).Take(3).Select(p => p.Id).ToList();
                 Warm(union, 58);
-                Diplomacy.CreateOrg(world, stats, $"{continent} Union", continent, union,
+                DiplomaticInstruments.CreateOrg(world, telemetry, $"{continent} Union", continent, union,
                     SupranationalKind.PoliticalUnion);
             }
 
@@ -103,7 +104,7 @@ public static class WorldBootstrap
                 }
             }
 
-            Diplomacy.CreateOrg(world, stats, "World Assembly", continentHint: null, assemblySeats,
+            DiplomaticInstruments.CreateOrg(world, telemetry, "World Assembly", continentHint: null, assemblySeats,
                 SupranationalKind.Forum);
         }
     }

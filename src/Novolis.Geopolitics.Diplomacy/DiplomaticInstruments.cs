@@ -1,15 +1,16 @@
 using Novolis.Geopolitics.Core;
 
-namespace Novolis.Geopolitics.Simulation;
+namespace Novolis.Geopolitics.Diplomacy;
 
-public static class Diplomacy
+/// <summary>Treaty and supranational-organization lifecycle: sign, join, leave, declare war.</summary>
+public static class DiplomaticInstruments
 {
     public static bool IsMultilateral(TreatyKind kind) => !Treaty.IsDirected(kind);
 
     /// <summary>Bilateral convenience: Peace/Aid/Embargo use sides; others create a 2-member multilateral.</summary>
     public static Treaty? SignTreaty(
         WorldState world,
-        GeoSimulationStats stats,
+        WorldTelemetry telemetry,
         TreatyKind kind,
         PolityId a,
         PolityId b,
@@ -54,15 +55,15 @@ public static class Diplomacy
 
         if (Treaty.IsDirected(kind))
         {
-            return CreateDirected(world, stats, kind, a, b, durationDays, name);
+            return CreateDirected(world, telemetry, kind, a, b, durationDays, name);
         }
 
-        return CreateMultilateral(world, stats, kind, a, [a, b], durationDays, name);
+        return CreateMultilateral(world, telemetry, kind, a, [a, b], durationDays, name);
     }
 
     public static Treaty? CreateMultilateral(
         WorldState world,
-        GeoSimulationStats stats,
+        WorldTelemetry telemetry,
         TreatyKind kind,
         PolityId creator,
         IEnumerable<PolityId> members,
@@ -115,7 +116,7 @@ public static class Diplomacy
         }
 
         world.Treaties.Add(treaty);
-        stats.TreatiesSigned++;
+        telemetry.TreatiesSigned++;
         BoostRelationsAmong(world, treaty.Members, RelationBoost(kind));
         EmitFormed(world, treaty);
         return treaty;
@@ -123,7 +124,7 @@ public static class Diplomacy
 
     public static Treaty? CreateDirected(
         WorldState world,
-        GeoSimulationStats stats,
+        WorldTelemetry telemetry,
         TreatyKind kind,
         PolityId sideA,
         PolityId sideB,
@@ -153,7 +154,7 @@ public static class Diplomacy
         treaty.SideA.Add(sideA);
         treaty.SideB.Add(sideB);
         world.Treaties.Add(treaty);
-        stats.TreatiesSigned++;
+        telemetry.TreatiesSigned++;
 
         if (kind == TreatyKind.EconomicEmbargo || kind == TreatyKind.WeaponTradeEmbargo)
         {
@@ -168,7 +169,7 @@ public static class Diplomacy
         return treaty;
     }
 
-    public static bool JoinTreaty(WorldState world, GeoSimulationStats stats, Treaty treaty, PolityId joiner)
+    public static bool JoinTreaty(WorldState world, WorldTelemetry telemetry, Treaty treaty, PolityId joiner)
     {
         if (!treaty.Active || Treaty.IsDirected(treaty.Kind) || treaty.Members.Contains(joiner))
         {
@@ -181,7 +182,7 @@ public static class Diplomacy
         }
 
         treaty.Members.Add(joiner);
-        stats.TreatyJoins++;
+        telemetry.TreatyJoins++;
         foreach (var m in treaty.Members)
         {
             if (m != joiner)
@@ -197,7 +198,7 @@ public static class Diplomacy
         return true;
     }
 
-    public static bool LeaveTreaty(WorldState world, GeoSimulationStats stats, Treaty treaty, PolityId leaver)
+    public static bool LeaveTreaty(WorldState world, WorldTelemetry telemetry, Treaty treaty, PolityId leaver)
     {
         if (!treaty.Active || !treaty.Contains(leaver))
         {
@@ -227,7 +228,7 @@ public static class Diplomacy
             }
         }
 
-        stats.TreatyLeaves++;
+        telemetry.TreatyLeaves++;
         world.AddEvent(
             GeoEventKind.TreatyLeft,
             $"{world.Polity(leaver).Name} left {treaty.Name}",
@@ -243,7 +244,7 @@ public static class Diplomacy
 
     public static Supranational CreateOrg(
         WorldState world,
-        GeoSimulationStats stats,
+        WorldTelemetry telemetry,
         string name,
         string? continentHint,
         IEnumerable<PolityId> members,
@@ -266,7 +267,7 @@ public static class Diplomacy
         }
 
         world.Supranationals.Add(org);
-        stats.OrgsCreated++;
+        telemetry.OrgsCreated++;
 
         var list = org.MemberIds.ToList();
         if (list.Count >= 2)
@@ -274,7 +275,7 @@ public static class Diplomacy
             var creator = list.OrderByDescending(id => world.Polity(id).Gdp).First();
             foreach (var (treatyKind, suffix) in SupranationalCatalog.LinkedInstruments(kind))
             {
-                var t = CreateMultilateral(world, stats, treatyKind, creator, list, -1,
+                var t = CreateMultilateral(world, telemetry, treatyKind, creator, list, -1,
                     $"{name} {suffix}", org.Id);
                 if (t is not null)
                 {
@@ -290,7 +291,7 @@ public static class Diplomacy
         return org;
     }
 
-    public static bool JoinOrg(WorldState world, GeoSimulationStats stats, Supranational org, PolityId joiner)
+    public static bool JoinOrg(WorldState world, WorldTelemetry telemetry, Supranational org, PolityId joiner)
     {
         if (DiplomaticRules.EvaluateOrgJoin(world, org, joiner) != TreatyRefusal.Accepted)
         {
@@ -298,13 +299,13 @@ public static class Diplomacy
         }
 
         org.MemberIds.Add(joiner);
-        stats.OrgJoins++;
+        telemetry.OrgJoins++;
         foreach (var tid in org.LinkedTreatyIds)
         {
             var t = world.Treaties.FirstOrDefault(x => x.Id == tid && x.Active);
             if (t is not null)
             {
-                JoinTreaty(world, stats, t, joiner);
+                JoinTreaty(world, telemetry, t, joiner);
             }
         }
 
@@ -315,20 +316,20 @@ public static class Diplomacy
         return true;
     }
 
-    public static bool LeaveOrg(WorldState world, GeoSimulationStats stats, Supranational org, PolityId leaver)
+    public static bool LeaveOrg(WorldState world, WorldTelemetry telemetry, Supranational org, PolityId leaver)
     {
         if (!org.Active || !org.MemberIds.Remove(leaver))
         {
             return false;
         }
 
-        stats.OrgLeaves++;
+        telemetry.OrgLeaves++;
         foreach (var tid in org.LinkedTreatyIds)
         {
             var t = world.Treaties.FirstOrDefault(x => x.Id == tid);
             if (t is not null && t.Contains(leaver))
             {
-                LeaveTreaty(world, stats, t, leaver);
+                LeaveTreaty(world, telemetry, t, leaver);
             }
         }
 
@@ -350,7 +351,7 @@ public static class Diplomacy
         return true;
     }
 
-    public static War? DeclareWar(WorldState world, GeoSimulationStats stats, PolityId attacker, PolityId defender)
+    public static War? DeclareWar(WorldState world, WorldTelemetry telemetry, PolityId attacker, PolityId defender)
     {
         if (attacker == defender || world.AreAtWar(attacker, defender))
         {
@@ -385,7 +386,7 @@ public static class Diplomacy
             Active = true,
         };
         world.Wars.Add(war);
-        stats.WarsStarted++;
+        telemetry.WarsStarted++;
         world.Relations.Set(attacker, defender, Math.Min(world.Relations.Get(attacker, defender), -40));
         world.AddEvent(
             GeoEventKind.WarDeclared,
@@ -404,7 +405,7 @@ public static class Diplomacy
 
                 if (world.Relations.Get(ally, defender) >= 40 && world.Relations.Get(ally, attacker) < 15)
                 {
-                    DeclareWar(world, stats, ally, attacker);
+                    DeclareWar(world, telemetry, ally, attacker);
                 }
             }
         }

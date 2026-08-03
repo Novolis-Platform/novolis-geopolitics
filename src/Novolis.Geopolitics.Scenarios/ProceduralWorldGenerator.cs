@@ -1,8 +1,10 @@
-namespace Novolis.Geopolitics.Core;
+using Novolis.Geopolitics.Core;
+
+namespace Novolis.Geopolitics.Scenarios;
 
 /// <summary>
 /// Deterministic procedural world: ~200 polities, ~1k provinces, continent grids + bridges.
-/// Original fiction geography — not derived from SuperPower 2 or proprietary datasets.
+/// Original fiction geography — not derived from any proprietary dataset.
 /// </summary>
 public static class ProceduralWorldGenerator
 {
@@ -41,19 +43,11 @@ public static class ProceduralWorldGenerator
         // Contiguous province id ranges per continent for bridge wiring.
         var continentProvinceRanges = new List<(int Start, int End)>();
 
-        // Cluster centres so 8 continents do not overlap on the theatre chart.
-        const double clusterSpacing = 90.0;
-        const double cellSpacing = 12.0;
-
         for (var c = 0; c < Continents.Length; c++)
         {
             var continent = Continents[c];
             var count = politiesPerContinent + (c < remainder ? 1 : 0);
             var continentStartProvince = provinceId;
-            var clusterCol = c % 3;
-            var clusterRow = c / 3;
-            var clusterOx = clusterCol * clusterSpacing;
-            var clusterOy = clusterRow * clusterSpacing;
 
             // Lay polities in a roughly square grid for neighbor discovery.
             var cols = (int)Math.Ceiling(Math.Sqrt(count));
@@ -72,8 +66,6 @@ public static class ProceduralWorldGenerator
                 var land = 80 + rng.NextDouble() * 420;
                 var air = 20 + rng.NextDouble() * 180;
                 var naval = coastalBias ? 40 + rng.NextDouble() * 220 : 5 + rng.NextDouble() * 40;
-                var mapX = clusterOx + col * cellSpacing + (rng.NextDouble() - 0.5) * 2.5;
-                var mapY = clusterOy + row * cellSpacing + (rng.NextDouble() - 0.5) * 2.5;
 
                 var gov = GovernmentRules.Roll(rng);
                 var tax = 0.15 + rng.NextDouble() * 0.2;
@@ -90,8 +82,6 @@ public static class ProceduralWorldGenerator
                     MilitaryBudgetShare = milShare,
                     Stability = 0.45 + rng.NextDouble() * 0.5,
                     TechLevel = tech,
-                    MapX = mapX,
-                    MapY = mapY,
                     Military = new MilitaryForce { Land = land, Air = air, Naval = naval },
                     Policy =
                     {
@@ -117,8 +107,6 @@ public static class ProceduralWorldGenerator
                 for (var p = 0; p < provinceCount; p++)
                 {
                     var coastal = coastalBias && (p == 0 || rng.NextDouble() < 0.45);
-                    var angle = Math.Tau * p / provinceCount;
-                    var radius = 1.2 + rng.NextDouble() * 0.8;
                     var pr = new Province
                     {
                         Id = new ProvinceId(provinceId),
@@ -128,9 +116,6 @@ public static class ProceduralWorldGenerator
                         Population = 200_000 + rng.NextDouble() * 4_800_000,
                         Wealth = gdp / provinceCount * (0.7 + rng.NextDouble() * 0.6),
                         Coastal = coastal,
-                        Habitat = HabitatRules.Roll(rng, coastal),
-                        MapX = mapX + Math.Cos(angle) * radius,
-                        MapY = mapY + Math.Sin(angle) * radius,
                         ResourceWeights = RollResourceWeights(rng, coastal, c),
                     };
                     world.Provinces.Add(pr);

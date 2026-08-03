@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <PackageId>Novolis.Geopolitics.Diplomacy</PackageId>
+    <IsPackable>true</IsPackable>
+    <RootNamespace>Novolis.Geopolitics.Diplomacy</RootNamespace>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+    <Description>
+      Treaty and supranational-organization lifecycle: bilateral/multilateral instruments,
+      acceptance rules, and monthly non-trade treaty effects.
+    </Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Novolis.Geopolitics.Core\Novolis.Geopolitics.Core.csproj" />
+  </ItemGroup>
+</Project>

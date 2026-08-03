@@ -1,8 +1,8 @@
 using Novolis.Geopolitics.Core;
 
-namespace Novolis.Geopolitics.Simulation;
+namespace Novolis.Geopolitics.Diplomacy;
 
-/// <summary>SP2-inspired acceptance / refusal checks for bilateral treaties and org joins.</summary>
+/// <summary>Acceptance / refusal checks for bilateral treaties and org joins.</summary>
 public static class DiplomaticRules
 {
     public static double MinRelationFor(TreatyKind kind) => kind switch

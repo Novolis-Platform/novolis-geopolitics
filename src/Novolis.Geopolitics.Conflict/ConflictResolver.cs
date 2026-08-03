@@ -1,8 +1,9 @@
 using Novolis.Geopolitics.Core;
 
-namespace Novolis.Geopolitics.Simulation;
+namespace Novolis.Geopolitics.Conflict;
 
-internal sealed class CombatResolver(Random rng)
+/// <summary>Resolves one battle attempt per active war per day: frontiers, staging, and captures.</summary>
+public sealed class ConflictResolver(Random rng)
 {
     public bool TryResolveFront(WorldState world, War war)
     {

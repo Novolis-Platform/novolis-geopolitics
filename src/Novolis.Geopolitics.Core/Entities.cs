@@ -134,12 +134,6 @@ public sealed class Polity
 
     public MilitaryForce Military { get; init; } = new();
 
-    /// <summary>Theatre chart X (system position; cluster-offset grid).</summary>
-    public double MapX { get; set; }
-
-    /// <summary>Theatre chart Y (system position).</summary>
-    public double MapY { get; set; }
-
     public double PowerScore =>
         Gdp * 0.001
         + Military.Total * (1.0 + TechLevel * 0.15)
@@ -148,7 +142,7 @@ public sealed class Polity
         + Civic.HumanDevelopment * 20.0;
 }
 
-/// <summary>Owned territory cell (UI: habitat) with adjacency and resource weights.</summary>
+/// <summary>Owned territory cell with adjacency and resource weights.</summary>
 public sealed class Province
 {
     public required ProvinceId Id { get; init; }
@@ -158,21 +152,14 @@ public sealed class Province
     public double Population { get; set; }
     public double Wealth { get; set; }
     public bool Coastal { get; set; }
-    public HabitatKind Habitat { get; set; } = HabitatKind.World;
     public List<ProvinceId> Neighbors { get; init; } = [];
-
-    /// <summary>Local habitat offset around home system (detail rail).</summary>
-    public double MapX { get; set; }
-
-    /// <summary>Local habitat offset around home system (detail rail).</summary>
-    public double MapY { get; set; }
 
     /// <summary>Relative productivity weights per resource (typically sum ≈ 1).</summary>
     public ResourceVector ResourceWeights { get; init; } = new();
 }
 
 /// <summary>
-/// Multilateral or directed diplomatic instrument (SP2 GTreaty homage).
+/// Multilateral or directed diplomatic instrument.
 /// Single-side kinds use <see cref="Members"/>; directed kinds use SideA/SideB.
 /// </summary>
 public sealed class Treaty
@@ -300,7 +287,7 @@ public static class SupranationalCatalog
         }
     }
 
-    /// <summary>Minimum median relation with members to join (SP2-ish barriers).</summary>
+    /// <summary>Minimum median relation with members required to join.</summary>
     public static double MinJoinRelation(SupranationalKind kind) => kind switch
     {
         SupranationalKind.Forum => 12,

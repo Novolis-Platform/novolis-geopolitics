@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <PackageId>Novolis.Geopolitics.Scenarios</PackageId>
+    <IsPackable>true</IsPackable>
+    <RootNamespace>Novolis.Geopolitics.Scenarios</RootNamespace>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+    <Description>
+      Original fiction world seed: procedural generator, seed DTOs/loader, default embedded
+      world, and deterministic institution (supranational) seeding.
+    </Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Novolis.Geopolitics.Core\Novolis.Geopolitics.Core.csproj" />
+    <ProjectReference Include="..\Novolis.Geopolitics.Diplomacy\Novolis.Geopolitics.Diplomacy.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="data\world-seed.json"
+                      Condition="Exists('data\world-seed.json')"
+                      LogicalName="Novolis.Geopolitics.Scenarios.data.world-seed.json" />
+  </ItemGroup>
+</Project>

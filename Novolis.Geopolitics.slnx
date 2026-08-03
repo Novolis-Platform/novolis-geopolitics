@@ -1,6 +1,11 @@
 <Solution>
   <Folder Name="/src/">
     <Project Path="src/Novolis.Geopolitics.Core/Novolis.Geopolitics.Core.csproj" />
+    <Project Path="src/Novolis.Geopolitics.Conflict/Novolis.Geopolitics.Conflict.csproj" />
+    <Project Path="src/Novolis.Geopolitics.Diplomacy/Novolis.Geopolitics.Diplomacy.csproj" />
+    <Project Path="src/Novolis.Geopolitics.Trade/Novolis.Geopolitics.Trade.csproj" />
+    <Project Path="src/Novolis.Geopolitics.PolicyAgents/Novolis.Geopolitics.PolicyAgents.csproj" />
+    <Project Path="src/Novolis.Geopolitics.Scenarios/Novolis.Geopolitics.Scenarios.csproj" />
     <Project Path="src/Novolis.Geopolitics.Simulation/Novolis.Geopolitics.Simulation.csproj" />
   </Folder>
   <Folder Name="/tests/">

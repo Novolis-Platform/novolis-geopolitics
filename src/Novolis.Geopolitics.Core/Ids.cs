@@ -27,7 +27,7 @@ public enum MilitaryDomain
     Naval = 2,
 }
 
-/// <summary>SP2-inspired treaty kinds (homage subset).</summary>
+/// <summary>Treaty instrument kinds.</summary>
 public enum TreatyKind
 {
     Peace = 0,
@@ -60,7 +60,7 @@ public enum SupranationalKind
     PoliticalUnion = 5,
 }
 
-/// <summary>Why a polity refuses a treaty or org join (SP2 refusal homage).</summary>
+/// <summary>Why a polity refuses a treaty or org join.</summary>
 public enum TreatyRefusal
 {
     Accepted = 0,
@@ -109,7 +109,7 @@ public enum GeoEventKind
     ProvinceCaptured = 5,
     BudgetCrisis = 6,
     TechAdvance = 7,
-    MilitaryBuild = 8,
+    ForceExpansion = 8,
     RelationShift = 9,
     TreatyFormed = 10,
     TreatyJoined = 11,

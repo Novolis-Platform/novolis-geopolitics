@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <PackageId>Novolis.Geopolitics.Trade</PackageId>
+    <IsPackable>true</IsPackable>
+    <RootNamespace>Novolis.Geopolitics.Trade</RootNamespace>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+    <Description>
+      Monthly resource clearing: domestic production/consumption, common-market pooling, a
+      GDP-weighted world market, and shortage/surplus feedback into stability and GDP.
+    </Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Novolis.Geopolitics.Core\Novolis.Geopolitics.Core.csproj" />
+  </ItemGroup>
+</Project>

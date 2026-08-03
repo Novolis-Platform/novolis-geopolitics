@@ -1,6 +1,6 @@
 namespace Novolis.Geopolitics.Core;
 
-/// <summary>Domestic regime (SP2 government-type homage; affects fiscal and diplomacy modifiers).</summary>
+/// <summary>Domestic regime type; affects fiscal and diplomacy modifiers.</summary>
 public enum GovernmentType
 {
     Democracy = 0,
@@ -80,7 +80,7 @@ public sealed class CivicState
     };
 }
 
-/// <summary>Regime modifiers (homage to SP2 government constants — original numbers).</summary>
+/// <summary>Regime modifiers on tax approval, propaganda, and alliance formation (original numbers).</summary>
 public static class GovernmentRules
 {
     public static double MilitaryUpkeepFactor(GovernmentType g) => g switch

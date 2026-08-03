@@ -1,49 +1,31 @@
+using Novolis.Geopolitics.Conflict;
 using Novolis.Geopolitics.Core;
+using Novolis.Geopolitics.Diplomacy;
+using Novolis.Geopolitics.PolicyAgents;
+using Novolis.Geopolitics.Scenarios;
+using Novolis.Geopolitics.Trade;
 
 namespace Novolis.Geopolitics.Simulation;
 
-public sealed class GeoSimulationStats
-{
-    public int DaysAdvanced { get; set; }
-    public int WarsStarted { get; set; }
-    public int WarsEnded { get; set; }
-    public int ProvincesCaptured { get; set; }
-    public int TreatiesSigned { get; set; }
-    public int TreatyJoins { get; set; }
-    public int TreatyLeaves { get; set; }
-    public int OrgsCreated { get; set; }
-    public int OrgJoins { get; set; }
-    public int OrgLeaves { get; set; }
-    public int BudgetCrises { get; set; }
-    public int TechAdvances { get; set; }
-    public double CommonMarketVolume { get; set; }
-    public double WorldMarketVolume { get; set; }
-    public double EconomicPartnershipGdpBoost { get; set; }
-    public double EconomicAidTransferred { get; set; }
-    public int ResourceShortageEvents { get; set; }
-    public double MeanLegitimacy { get; set; }
-    public double MeanApproval { get; set; }
-}
-
-/// <summary>Advances a <see cref="WorldState"/> by calendar days with month-boundary AI/budget.</summary>
-public sealed class GeoSimulation
+/// <summary>Advances a <see cref="WorldState"/> by calendar days with month-boundary policy/budget.</summary>
+public sealed class WorldSimulation
 {
     private readonly Random _rng;
-    private readonly CombatResolver _combat;
-    private readonly PolityAi _ai;
+    private readonly ConflictResolver _combat;
+    private readonly HeuristicPolicyAgent _policyAgent;
 
-    public GeoSimulation(WorldState world, int? rngSeed = null)
+    public WorldSimulation(WorldState world, int? rngSeed = null)
     {
         World = world;
         _rng = new Random(rngSeed ?? world.Seed);
-        _combat = new CombatResolver(_rng);
-        _ai = new PolityAi(_rng);
-        Stats = new GeoSimulationStats();
-        WorldBootstrap.EnsureContinentOrgs(world, Stats);
+        _combat = new ConflictResolver(_rng);
+        _policyAgent = new HeuristicPolicyAgent(_rng);
+        Telemetry = new WorldTelemetry();
+        InstitutionSeeder.EnsureContinentOrgs(world, Telemetry);
     }
 
     public WorldState World { get; }
-    public GeoSimulationStats Stats { get; }
+    public WorldTelemetry Telemetry { get; }
 
     public void Advance(int days)
     {
@@ -57,7 +39,7 @@ public sealed class GeoSimulation
             AdvanceOneDay();
         }
 
-        Stats.DaysAdvanced += days;
+        Telemetry.DaysAdvanced += days;
     }
 
     public void AdvanceYears(int years) => Advance(years * WorldState.DaysPerYear);
@@ -73,10 +55,10 @@ public sealed class GeoSimulation
         if (World.Day % WorldState.DaysPerMonth == 0)
         {
             // Trade first so resource balances feed civic approval/growth this period.
-            TradeResolver.RunMonth(World, Stats);
-            CivicPipeline.RunMonth(World, Stats);
-            TreatyEffects.RunMonth(World, Stats);
-            _ai.RunMonth(World, Stats);
+            TradeClearing.RunMonth(World, Telemetry);
+            CivicPipeline.RunMonth(World, Telemetry);
+            TreatyEffects.RunMonth(World, Telemetry);
+            _policyAgent.RunMonth(World, Telemetry);
         }
     }
 
@@ -154,7 +136,7 @@ public sealed class GeoSimulation
             var captured = _combat.TryResolveFront(World, war);
             if (captured)
             {
-                Stats.ProvincesCaptured++;
+                Telemetry.ProvincesCaptured++;
             }
 
             var attackerPower = World.Polity(war.Attacker).Military.Total;
@@ -177,9 +159,9 @@ public sealed class GeoSimulation
 
         war.Active = false;
         war.EndedDay = World.Day;
-        Stats.WarsEnded++;
+        Telemetry.WarsEnded++;
 
-        Diplomacy.SignTreaty(World, Stats, TreatyKind.Peace, war.Attacker, war.Defender, durationDays: 360);
+        DiplomaticInstruments.SignTreaty(World, Telemetry, TreatyKind.Peace, war.Attacker, war.Defender, durationDays: 360);
         World.Relations.Adjust(war.Attacker, war.Defender, seekPeace ? 8 : -5);
         World.AddEvent(
             GeoEventKind.PeaceSigned,
@@ -187,5 +169,4 @@ public sealed class GeoSimulation
             war.Attacker,
             war.Defender);
     }
-
 }

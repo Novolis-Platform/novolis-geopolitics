@@ -8,7 +8,7 @@ namespace Novolis.Geopolitics.Simulation;
 /// </summary>
 public static class CivicPipeline
 {
-    public static void RunMonth(WorldState world, GeoSimulationStats stats)
+    public static void RunMonth(WorldState world, WorldTelemetry telemetry)
     {
         var techAdvances = 0;
         var crises = 0;
@@ -74,10 +74,10 @@ public static class CivicPipeline
             approvalSum += polity.Civic.Approval;
         }
 
-        stats.TechAdvances += techAdvances;
-        stats.BudgetCrises += crises;
+        telemetry.TechAdvances += techAdvances;
+        telemetry.BudgetCrises += crises;
         var n = Math.Max(1, world.Polities.Count);
-        stats.MeanLegitimacy = legitSum / n;
-        stats.MeanApproval = approvalSum / n;
+        telemetry.MeanLegitimacy = legitSum / n;
+        telemetry.MeanApproval = approvalSum / n;
     }
 }

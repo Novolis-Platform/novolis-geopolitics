@@ -1,16 +1,16 @@
 using Novolis.Geopolitics.Core;
 
-namespace Novolis.Geopolitics.Simulation;
+namespace Novolis.Geopolitics.Diplomacy;
 
 /// <summary>Monthly non-trade treaty effects: EP GDP, research, aid transfers, alliance relation floor.</summary>
 public static class TreatyEffects
 {
-    public static void RunMonth(WorldState world, GeoSimulationStats stats)
+    public static void RunMonth(WorldState world, WorldTelemetry telemetry)
     {
-        ApplyEconomicPartnerships(world, stats);
+        ApplyEconomicPartnerships(world, telemetry);
         ApplyResearchPartnerships(world);
         ApplyCulturalExchanges(world);
-        ApplyEconomicAid(world, stats);
+        ApplyEconomicAid(world, telemetry);
         ApplyAllianceRelationFloor(world);
         ApplyForumDrift(world);
     }
@@ -24,7 +24,7 @@ public static class TreatyEffects
             {
                 for (var j = i + 1; j < members.Count; j++)
                 {
-                    // Homage to SP2 yearly cultural relation gain (~1/year → ~0.08/month).
+                    // Slow yearly cultural relation gain (~1/year → ~0.08/month).
                     world.Relations.Adjust(members[i], members[j], 0.08);
                 }
             }
@@ -53,7 +53,7 @@ public static class TreatyEffects
         }
     }
 
-    private static void ApplyEconomicPartnerships(WorldState world, GeoSimulationStats stats)
+    private static void ApplyEconomicPartnerships(WorldState world, WorldTelemetry telemetry)
     {
         foreach (var ep in world.ActiveTreaties(TreatyKind.EconomicPartnership))
         {
@@ -72,12 +72,12 @@ public static class TreatyEffects
             foreach (var id in members)
             {
                 var p = world.Polity(id);
-                // Homage: small production bonus scaled by partners' relative size (cap ~0.1%/month).
+                // Small production bonus scaled by partners' relative size (cap ~0.1%/month).
                 var partnerShare = (totalGdp - p.Gdp) / totalGdp;
                 var boost = 0.001 * Math.Min(1.0, partnerShare * 2.0);
                 var delta = p.Gdp * boost / 12.0;
                 p.Gdp += delta;
-                stats.EconomicPartnershipGdpBoost += delta;
+                telemetry.EconomicPartnershipGdpBoost += delta;
             }
         }
     }
@@ -102,7 +102,7 @@ public static class TreatyEffects
         }
     }
 
-    private static void ApplyEconomicAid(WorldState world, GeoSimulationStats stats)
+    private static void ApplyEconomicAid(WorldState world, WorldTelemetry telemetry)
     {
         foreach (var aid in world.ActiveTreaties(TreatyKind.EconomicAid))
         {
@@ -110,7 +110,7 @@ public static class TreatyEffects
             {
                 var donor = world.Polity(donorId);
                 var monthlyBudget = donor.Gdp * donor.TaxRate / 12.0;
-                var pledge = monthlyBudget * 0.01; // 1% of budget expenses homage
+                var pledge = monthlyBudget * 0.01; // 1% of monthly budget expenses
                 if (pledge <= 0 || donor.Treasury < pledge)
                 {
                     continue;
@@ -134,7 +134,7 @@ public static class TreatyEffects
                     world.Relations.Adjust(donorId, r, 0.5);
                 }
 
-                stats.EconomicAidTransferred += pledge;
+                telemetry.EconomicAidTransferred += pledge;
             }
         }
     }

@@ -1,11 +1,12 @@
 using System.Reflection;
+using Novolis.Geopolitics.Core;
 
-namespace Novolis.Geopolitics.Core;
+namespace Novolis.Geopolitics.Scenarios;
 
 /// <summary>Loads the embedded default world seed, with procedural fallback.</summary>
 public static class DefaultWorld
 {
-    public const string EmbeddedResourceName = "Novolis.Geopolitics.Core.data.world-seed.json";
+    public const string EmbeddedResourceName = "Novolis.Geopolitics.Scenarios.data.world-seed.json";
 
     public static WorldState Load()
     {

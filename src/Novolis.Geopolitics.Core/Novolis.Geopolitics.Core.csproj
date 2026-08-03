@@ -6,12 +6,8 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>$(NoWarn);CS1591</NoWarn>
     <Description>
-      Geopolitics domain model: polities, provinces, relations, treaties, wars, and world state.
+      Geopolitics kernel: polities, provinces, relations, treaties, wars, and the civic/fiscal
+      stock-flow engine. No RNG, combat, trade, AI, or fiction seed data.
     </Description>
   </PropertyGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="data\world-seed.json"
-                      Condition="Exists('data\world-seed.json')"
-                      LogicalName="Novolis.Geopolitics.Core.data.world-seed.json" />
-  </ItemGroup>
 </Project>

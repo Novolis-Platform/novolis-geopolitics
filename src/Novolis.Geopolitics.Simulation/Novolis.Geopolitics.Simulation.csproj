@@ -6,10 +6,16 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>$(NoWarn);CS1591</NoWarn>
     <Description>
-      Day/month geopolitics tick: budgets, combat, treaties, and deterministic AI agendas.
-     Publish-ready stack package.</Description>
+      Composition root: day/month simulation tick wiring conflict, diplomacy, trade, policy
+      agents, and civic settlement over a WorldState from Scenarios.
+    </Description>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\Novolis.Geopolitics.Core\Novolis.Geopolitics.Core.csproj" />
+    <ProjectReference Include="..\Novolis.Geopolitics.Conflict\Novolis.Geopolitics.Conflict.csproj" />
+    <ProjectReference Include="..\Novolis.Geopolitics.Diplomacy\Novolis.Geopolitics.Diplomacy.csproj" />
+    <ProjectReference Include="..\Novolis.Geopolitics.Trade\Novolis.Geopolitics.Trade.csproj" />
+    <ProjectReference Include="..\Novolis.Geopolitics.PolicyAgents\Novolis.Geopolitics.PolicyAgents.csproj" />
+    <ProjectReference Include="..\Novolis.Geopolitics.Scenarios\Novolis.Geopolitics.Scenarios.csproj" />
   </ItemGroup>
 </Project>

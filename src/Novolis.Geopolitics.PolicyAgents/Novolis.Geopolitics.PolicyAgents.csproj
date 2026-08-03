@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <PackageId>Novolis.Geopolitics.PolicyAgents</PackageId>
+    <IsPackable>true</IsPackable>
+    <RootNamespace>Novolis.Geopolitics.PolicyAgents</RootNamespace>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+    <Description>
+      Deterministic heuristic policy agent: fiscal-policy adjustment, diplomacy proposals, and
+      war entry/exit heuristics, expressed purely as policy-knob mutations for Core to settle.
+    </Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Novolis.Geopolitics.Core\Novolis.Geopolitics.Core.csproj" />
+    <ProjectReference Include="..\Novolis.Geopolitics.Diplomacy\Novolis.Geopolitics.Diplomacy.csproj" />
+  </ItemGroup>
+</Project>

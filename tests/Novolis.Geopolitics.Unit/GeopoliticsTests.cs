@@ -1,5 +1,8 @@
 using Novolis.Geopolitics.Core;
+using Novolis.Geopolitics.Diplomacy;
+using Novolis.Geopolitics.Scenarios;
 using Novolis.Geopolitics.Simulation;
+using Novolis.Geopolitics.Trade;
 
 namespace Novolis.Geopolitics.Unit;
 
@@ -45,8 +48,8 @@ public sealed class WorldSeedTests
     public async Task Bootstrap_CreatesVariedOrgKinds()
     {
         var world = ProceduralWorldGenerator.Generate(42);
-        var stats = new GeoSimulationStats();
-        WorldBootstrap.EnsureContinentOrgs(world, stats);
+        var stats = new WorldTelemetry();
+        InstitutionSeeder.EnsureContinentOrgs(world, stats);
         await Assert.That(world.ActiveOrgs.Count()).IsGreaterThanOrEqualTo(20);
         await Assert.That(world.ActiveOrgs.Any(o => o.Kind == SupranationalKind.Forum)).IsTrue();
         await Assert.That(world.ActiveOrgs.Any(o => o.Kind == SupranationalKind.DefenceAlliance)).IsTrue();
@@ -75,7 +78,7 @@ public sealed class DiplomacyCombatTests
     public async Task DeclareWar_AndCapture_FlipsOwnership()
     {
         var world = ProceduralWorldGenerator.Generate(99);
-        var sim = new GeoSimulation(world, rngSeed: 99);
+        var sim = new WorldSimulation(world, rngSeed: 99);
 
         PolityId? a = null;
         PolityId? b = null;
@@ -110,7 +113,7 @@ public sealed class DiplomacyCombatTests
         world.Polity(defender).Military.Air = 5;
         world.Polity(defender).Military.Naval = 1;
 
-        var war = Diplomacy.DeclareWar(world, sim.Stats, attacker, defender);
+        var war = DiplomaticInstruments.DeclareWar(world, sim.Telemetry, attacker, defender);
         await Assert.That(war).IsNotNull();
         await Assert.That(world.AreAtWar(attacker, defender)).IsTrue();
 
@@ -118,22 +121,22 @@ public sealed class DiplomacyCombatTests
         sim.Advance(180);
         var after = world.CountOwnedProvinces(attacker);
         await Assert.That(after).IsGreaterThan(before);
-        await Assert.That(sim.Stats.ProvincesCaptured).IsGreaterThan(0);
+        await Assert.That(sim.Telemetry.ProvincesCaptured).IsGreaterThan(0);
     }
 
     [Test]
     public async Task Alliance_BlocksDeclareWar()
     {
         var world = ProceduralWorldGenerator.Generate(7);
-        var stats = new GeoSimulationStats();
+        var stats = new WorldTelemetry();
         var a = new PolityId(0);
         var b = new PolityId(1);
         world.Relations.Set(a, b, 60);
         world.Polity(a).Stability = 0.8;
         world.Polity(b).Stability = 0.8;
-        var treaty = Diplomacy.SignTreaty(world, stats, TreatyKind.Alliance, a, b, 1000);
+        var treaty = DiplomaticInstruments.SignTreaty(world, stats, TreatyKind.Alliance, a, b, 1000);
         await Assert.That(treaty).IsNotNull();
-        var war = Diplomacy.DeclareWar(world, stats, a, b);
+        var war = DiplomaticInstruments.DeclareWar(world, stats, a, b);
         await Assert.That(war).IsNull();
         await Assert.That(world.AreAtWar(a, b)).IsFalse();
     }
@@ -142,12 +145,12 @@ public sealed class DiplomacyCombatTests
     public async Task PeaceTreaty_BlocksEarlyRedeclaration()
     {
         var world = ProceduralWorldGenerator.Generate(11);
-        var stats = new GeoSimulationStats();
+        var stats = new WorldTelemetry();
         var a = new PolityId(0);
         var b = new PolityId(1);
         world.Day = 100;
-        Diplomacy.SignTreaty(world, stats, TreatyKind.Peace, a, b, 360);
-        var war = Diplomacy.DeclareWar(world, stats, a, b);
+        DiplomaticInstruments.SignTreaty(world, stats, TreatyKind.Peace, a, b, 360);
+        var war = DiplomaticInstruments.DeclareWar(world, stats, a, b);
         await Assert.That(war).IsNull();
     }
 
@@ -155,15 +158,15 @@ public sealed class DiplomacyCombatTests
     public async Task Multilateral_Join_AddsMember()
     {
         var world = ProceduralWorldGenerator.Generate(3);
-        var stats = new GeoSimulationStats();
+        var stats = new WorldTelemetry();
         world.Relations.Set(new PolityId(0), new PolityId(1), 50);
         world.Relations.Set(new PolityId(0), new PolityId(2), 50);
         world.Relations.Set(new PolityId(1), new PolityId(2), 50);
         world.Polity(new PolityId(0)).Stability = 0.8;
         world.Polity(new PolityId(1)).Stability = 0.8;
-        var t = Diplomacy.SignTreaty(world, stats, TreatyKind.CommonMarket, new PolityId(0), new PolityId(1), 500);
+        var t = DiplomaticInstruments.SignTreaty(world, stats, TreatyKind.CommonMarket, new PolityId(0), new PolityId(1), 500);
         await Assert.That(t).IsNotNull();
-        var joined = Diplomacy.JoinTreaty(world, stats, t!, new PolityId(2));
+        var joined = DiplomaticInstruments.JoinTreaty(world, stats, t!, new PolityId(2));
         await Assert.That(joined).IsTrue();
         await Assert.That(t!.Members.Count).IsEqualTo(3);
         await Assert.That(world.HaveTreaty(new PolityId(0), new PolityId(2), TreatyKind.CommonMarket)).IsTrue();
@@ -173,12 +176,12 @@ public sealed class DiplomacyCombatTests
     public async Task OrgLeave_DropsMembership()
     {
         var world = ProceduralWorldGenerator.Generate(5);
-        var stats = new GeoSimulationStats();
-        WorldBootstrap.EnsureContinentOrgs(world, stats);
+        var stats = new WorldTelemetry();
+        InstitutionSeeder.EnsureContinentOrgs(world, stats);
         var org = world.ActiveOrgs.First();
         var leaver = org.MemberIds.First();
         var before = org.MemberIds.Count;
-        var ok = Diplomacy.LeaveOrg(world, stats, org, leaver);
+        var ok = DiplomaticInstruments.LeaveOrg(world, stats, org, leaver);
         await Assert.That(ok).IsTrue();
         await Assert.That(org.MemberIds.Contains(leaver)).IsFalse();
         await Assert.That(org.MemberIds.Count).IsEqualTo(before - 1);
@@ -282,13 +285,13 @@ public sealed class TradeTests
     public async Task CommonMarket_FillsDeficit()
     {
         var world = ProceduralWorldGenerator.Generate(13);
-        var stats = new GeoSimulationStats();
+        var stats = new WorldTelemetry();
         var a = new PolityId(0);
         var b = new PolityId(1);
         world.Relations.Set(a, b, 50);
         world.Polity(a).Stability = 0.8;
         world.Polity(b).Stability = 0.8;
-        Diplomacy.SignTreaty(world, stats, TreatyKind.CommonMarket, a, b, 1000);
+        DiplomaticInstruments.SignTreaty(world, stats, TreatyKind.CommonMarket, a, b, 1000);
 
         // Force surplus/deficit via province weights + owned scale.
         world.Polity(a).Gdp = 500_000;
@@ -305,7 +308,7 @@ public sealed class TradeTests
             pr.Population = 5_000_000;
         }
 
-        TradeResolver.RunMonth(world, stats);
+        TradeClearing.RunMonth(world, stats);
         await Assert.That(stats.CommonMarketVolume).IsGreaterThan(0);
     }
 
@@ -313,23 +316,23 @@ public sealed class TradeTests
     public async Task Embargo_ReducesWorldFill()
     {
         var world = ProceduralWorldGenerator.Generate(17);
-        var statsOpen = new GeoSimulationStats();
-        TradeResolver.RunMonth(world, statsOpen);
+        var statsOpen = new WorldTelemetry();
+        TradeClearing.RunMonth(world, statsOpen);
         var openVol = statsOpen.WorldMarketVolume;
 
         var world2 = ProceduralWorldGenerator.Generate(17);
-        var statsEmb = new GeoSimulationStats();
+        var statsEmb = new WorldTelemetry();
         // Embargo many pairs among top GDP.
         var top = world2.Polities.OrderByDescending(p => p.Gdp).Take(8).Select(p => p.Id).ToList();
         for (var i = 0; i < top.Count; i++)
         {
             for (var j = i + 1; j < top.Count; j++)
             {
-                Diplomacy.SignTreaty(world2, statsEmb, TreatyKind.EconomicEmbargo, top[i], top[j], 500);
+                DiplomaticInstruments.SignTreaty(world2, statsEmb, TreatyKind.EconomicEmbargo, top[i], top[j], 500);
             }
         }
 
-        TradeResolver.RunMonth(world2, statsEmb);
+        TradeClearing.RunMonth(world2, statsEmb);
         // Embargoed world should not clear more than the open baseline (soft check).
         await Assert.That(statsEmb.WorldMarketVolume).IsLessThanOrEqualTo(openVol * 1.05);
         await Assert.That(world2.CountActiveTreatiesOfKind(TreatyKind.EconomicEmbargo)).IsGreaterThan(0);
@@ -339,12 +342,12 @@ public sealed class TradeTests
     public async Task EconomicPartnership_RaisesGdp()
     {
         var world = ProceduralWorldGenerator.Generate(19);
-        var stats = new GeoSimulationStats();
+        var stats = new WorldTelemetry();
         var a = world.Polities[0];
         var b = world.Polities[1];
         world.Relations.Set(a.Id, b.Id, 40);
         var gdp0 = a.Gdp;
-        Diplomacy.SignTreaty(world, stats, TreatyKind.EconomicPartnership, a.Id, b.Id, 1000);
+        DiplomaticInstruments.SignTreaty(world, stats, TreatyKind.EconomicPartnership, a.Id, b.Id, 1000);
         for (var i = 0; i < 24; i++)
         {
             TreatyEffects.RunMonth(world, stats);
@@ -362,7 +365,7 @@ public sealed class HeadlessSmokeTests
     {
         var world = DefaultWorld.Load();
         var opening = world.Provinces.ToDictionary(p => p.Id.Value, p => p.OwnerId.Value);
-        var sim = new GeoSimulation(world, rngSeed: world.Seed);
+        var sim = new WorldSimulation(world, rngSeed: world.Seed);
         await Assert.That(world.ActiveOrgs.Count()).IsGreaterThanOrEqualTo(20);
         sim.AdvanceYears(10);
 
@@ -371,9 +374,9 @@ public sealed class HeadlessSmokeTests
         await Assert.That(world.Polities.Count).IsEqualTo(200);
 
         var churn = world.Provinces.Count(p => opening[p.Id.Value] != p.OwnerId.Value);
-        var alive = sim.Stats.WarsStarted + sim.Stats.TreatiesSigned + sim.Stats.TechAdvances + churn
-                    + (int)sim.Stats.CommonMarketVolume;
+        var alive = sim.Telemetry.WarsStarted + sim.Telemetry.TreatiesSigned + sim.Telemetry.TechAdvances + churn
+                    + (int)sim.Telemetry.CommonMarketVolume;
         await Assert.That(alive).IsGreaterThan(0);
-        await Assert.That(sim.Stats.CommonMarketVolume + sim.Stats.WorldMarketVolume).IsGreaterThan(0);
+        await Assert.That(sim.Telemetry.CommonMarketVolume + sim.Telemetry.WorldMarketVolume).IsGreaterThan(0);
     }
 }

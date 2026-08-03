@@ -1,11 +1,11 @@
 using Novolis.Geopolitics.Core;
 
-namespace Novolis.Geopolitics.Simulation;
+namespace Novolis.Geopolitics.Trade;
 
 /// <summary>Monthly resource production, common-market clear, world market, embargo gates.</summary>
-public static class TradeResolver
+public static class TradeClearing
 {
-    public static void RunMonth(WorldState world, GeoSimulationStats stats)
+    public static void RunMonth(WorldState world, WorldTelemetry telemetry)
     {
         foreach (var polity in world.Polities)
         {
@@ -15,9 +15,9 @@ public static class TradeResolver
         // Working surplus/deficit buffers.
         var surplus = world.Polities.Select(p => p.Balance.Clone()).ToArray();
 
-        ClearCommonMarkets(world, surplus, stats);
-        ClearWorldMarket(world, surplus, stats);
-        ApplyShortageAndSurplus(world, surplus, stats);
+        ClearCommonMarkets(world, surplus, telemetry);
+        ClearWorldMarket(world, surplus, telemetry);
+        ApplyShortageAndSurplus(world, surplus, telemetry);
     }
 
     private static void ComputeDomestic(WorldState world, Polity polity)
@@ -68,7 +68,7 @@ public static class TradeResolver
         }
     }
 
-    private static void ClearCommonMarkets(WorldState world, ResourceVector[] surplus, GeoSimulationStats stats)
+    private static void ClearCommonMarkets(WorldState world, ResourceVector[] surplus, WorldTelemetry telemetry)
     {
         foreach (var cm in world.ActiveTreaties(TreatyKind.CommonMarket))
         {
@@ -101,7 +101,7 @@ public static class TradeResolver
 
                 var totalNeed = needers.Sum(i => -surplus[i][kind]);
                 var filled = Math.Min(pool, totalNeed);
-                stats.CommonMarketVolume += filled;
+                telemetry.CommonMarketVolume += filled;
 
                 // Draw from surplus members proportional to surplus.
                 foreach (var idx in members)
@@ -125,7 +125,7 @@ public static class TradeResolver
         }
     }
 
-    private static void ClearWorldMarket(WorldState world, ResourceVector[] surplus, GeoSimulationStats stats)
+    private static void ClearWorldMarket(WorldState world, ResourceVector[] surplus, WorldTelemetry telemetry)
     {
         foreach (var kind in ResourceKinds.All)
         {
@@ -156,7 +156,7 @@ public static class TradeResolver
                 continue;
             }
 
-            stats.WorldMarketVolume += volume;
+            telemetry.WorldMarketVolume += volume;
 
             // GDP-weighted allocation with embargo filter.
             var sellPool = sellers.Sum(s => s.Amt);
@@ -183,7 +183,7 @@ public static class TradeResolver
         }
     }
 
-    private static void ApplyShortageAndSurplus(WorldState world, ResourceVector[] surplus, GeoSimulationStats stats)
+    private static void ApplyShortageAndSurplus(WorldState world, ResourceVector[] surplus, WorldTelemetry telemetry)
     {
         for (var i = 0; i < world.Polities.Count; i++)
         {
@@ -204,7 +204,7 @@ public static class TradeResolver
 
             if (shortage > 12)
             {
-                stats.ResourceShortageEvents++;
+                telemetry.ResourceShortageEvents++;
                 p.Stability = Math.Max(0.05, p.Stability - Math.Min(0.02, shortage * 0.0008));
                 p.Gdp *= 1.0 - Math.Min(0.002, shortage * 0.00005);
                 if (world.Day % (WorldState.DaysPerMonth * 6) == 0 && shortage > 40)

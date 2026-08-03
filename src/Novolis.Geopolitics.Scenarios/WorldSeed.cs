@@ -1,7 +1,8 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Novolis.Geopolitics.Core;
 
-namespace Novolis.Geopolitics.Core;
+namespace Novolis.Geopolitics.Scenarios;
 
 public sealed class WorldSeedDto
 {
@@ -38,8 +39,6 @@ public sealed class PolitySeedDto
     public double? Approval { get; set; }
     public double? Corruption { get; set; }
     public double? HumanDevelopment { get; set; }
-    public double? MapX { get; set; }
-    public double? MapY { get; set; }
 }
 
 public sealed class ProvinceSeedDto
@@ -54,9 +53,6 @@ public sealed class ProvinceSeedDto
     public List<int> Neighbors { get; set; } = [];
     /// <summary>Per-resource productivity weights (length 6); optional for older seeds.</summary>
     public double[]? ResourceWeights { get; set; }
-    public string? Habitat { get; set; }
-    public double? MapX { get; set; }
-    public double? MapY { get; set; }
 }
 
 public sealed class RelationSeedDto
@@ -135,8 +131,6 @@ public static class WorldSeedLoader
                     Corruption = p.Corruption ?? Math.Clamp(0.35 - stability * 0.25, 0.05, 0.45),
                     HumanDevelopment = p.HumanDevelopment ?? Math.Clamp(0.3 + stability * 0.4, 0.25, 1.2),
                 },
-                MapX = p.MapX ?? p.Id * 0.01,
-                MapY = p.MapY ?? p.Id * 0.01,
             });
         }
 
@@ -166,9 +160,6 @@ public static class WorldSeedLoader
                 Population = pr.Population,
                 Wealth = pr.Wealth,
                 Coastal = pr.Coastal,
-                Habitat = ParseHabitat(pr.Habitat),
-                MapX = pr.MapX ?? 0,
-                MapY = pr.MapY ?? 0,
                 Neighbors = pr.Neighbors.Select(n => new ProvinceId(n)).ToList(),
                 ResourceWeights = weights,
             });
@@ -215,8 +206,6 @@ public static class WorldSeedLoader
                 Approval = p.Civic.Approval,
                 Corruption = p.Civic.Corruption,
                 HumanDevelopment = p.Civic.HumanDevelopment,
-                MapX = p.MapX,
-                MapY = p.MapY,
             });
         }
 
@@ -231,9 +220,6 @@ public static class WorldSeedLoader
                 Population = pr.Population,
                 Wealth = pr.Wealth,
                 Coastal = pr.Coastal,
-                Habitat = pr.Habitat.ToString(),
-                MapX = pr.MapX,
-                MapY = pr.MapY,
                 Neighbors = pr.Neighbors.Select(n => n.Value).OrderBy(x => x).ToList(),
                 ResourceWeights = pr.ResourceWeights.ToArray(),
             });
@@ -259,17 +245,5 @@ public static class WorldSeedLoader
         return Enum.TryParse<GovernmentType>(value, ignoreCase: true, out var g)
             ? g
             : GovernmentType.Democracy;
-    }
-
-    private static HabitatKind ParseHabitat(string? value)
-    {
-        if (string.IsNullOrWhiteSpace(value))
-        {
-            return HabitatKind.World;
-        }
-
-        return Enum.TryParse<HabitatKind>(value, ignoreCase: true, out var h)
-            ? h
-            : HabitatKind.World;
     }
 }

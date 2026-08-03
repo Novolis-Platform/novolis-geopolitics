@@ -1,5 +1,5 @@
 using System.Text.Json;
-using Novolis.Geopolitics.Core;
+using Novolis.Geopolitics.Scenarios;
 
 var seed = ProceduralWorldGenerator.DefaultSeed;
 var attribution =
@@ -12,7 +12,7 @@ dto.Relations = dto.Relations.Where(r => Math.Abs(r.Score) >= 8).ToList();
 var outPath = args.Length > 0
     ? args[0]
     : Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "..",
-        "src", "Novolis.Geopolitics.Core", "data", "world-seed.json"));
+        "src", "Novolis.Geopolitics.Scenarios", "data", "world-seed.json"));
 
 Directory.CreateDirectory(Path.GetDirectoryName(outPath)!);
 var json = JsonSerializer.Serialize(dto, new JsonSerializerOptions { WriteIndented = false });

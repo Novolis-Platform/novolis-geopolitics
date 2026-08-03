@@ -1,3 +1,54 @@
+<!-- novolis-marketing:start -->
+<p align="center">
+  <a href="https://github.com/Novolis-Platform">
+    <img src="https://raw.githubusercontent.com/Novolis-Platform/.github/main/brand/logo-brand-transparent.svg" width="360" alt="Novolis"/>
+  </a>
+</p>
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/Novolis-Platform/.github/main/brand/banners/novolis-geopolitics.svg" width="100%" alt="novolis-geopolitics"/>
+</p>
+
+<p align="center">
+  <strong>Full-world geopolitics engines</strong><br/>
+  Homage geopolitics simulation libraries; GeoPolity hosts live in novolis-apps.
+</p>
+
+<p align="center">
+  <a href="https://github.com/Novolis-Platform/novolis-geopolitics/actions"><img src="https://img.shields.io/github/actions/workflow/status/Novolis-Platform/novolis-geopolitics/merge.yml?branch=main&label=merge&logo=github" alt="merge"/></a>
+  <a href="https://github.com/orgs/Novolis-Platform/packages?repo_name=novolis-geopolitics"><img src="https://img.shields.io/badge/packages-GitHub%20Packages-0a7ea3?logo=nuget" alt="packages"/></a>
+  <a href="https://github.com/Novolis-Platform"><img src="https://img.shields.io/badge/org-Novolis--Platform-111827" alt="org"/></a>
+</p>
+
+<p align="center">
+  <a href="https://nuget.pkg.github.com/Novolis-Platform/index.json"><code>https://nuget.pkg.github.com/Novolis-Platform/index.json</code></a>
+  ·
+  <a href="https://github.com/Novolis-Platform/.github/blob/main/profile/README.md">Org landing</a>
+  ·
+  <a href="https://github.com/Novolis-Platform/novolis-governance">Governance</a>
+</p>
+
+---
+<!-- novolis-marketing:end -->
+<!-- novolis-package-index:start -->
+> **GitHub Packages shows this repository README on every package page** (upstream limitation).
+> Open the **package README** for install and quick start — embedded in each .nupkg and linked below.
+
+## Published packages
+
+| Package | Install | Package README |
+|---------|---------|----------------|
+| `Novolis.Geopolitics.Conflict` | `dotnet add package Novolis.Geopolitics.Conflict` | [README](https://github.com/Novolis-Platform/novolis-geopolitics/blob/main/src/Novolis.Geopolitics.Conflict/README.md) |
+| `Novolis.Geopolitics.Core` | `dotnet add package Novolis.Geopolitics.Core` | [README](https://github.com/Novolis-Platform/novolis-geopolitics/blob/main/src/Novolis.Geopolitics.Core/README.md) |
+| `Novolis.Geopolitics.Diplomacy` | `dotnet add package Novolis.Geopolitics.Diplomacy` | [README](https://github.com/Novolis-Platform/novolis-geopolitics/blob/main/src/Novolis.Geopolitics.Diplomacy/README.md) |
+| `Novolis.Geopolitics.PolicyAgents` | `dotnet add package Novolis.Geopolitics.PolicyAgents` | [README](https://github.com/Novolis-Platform/novolis-geopolitics/blob/main/src/Novolis.Geopolitics.PolicyAgents/README.md) |
+| `Novolis.Geopolitics.Scenarios` | `dotnet add package Novolis.Geopolitics.Scenarios` | [README](https://github.com/Novolis-Platform/novolis-geopolitics/blob/main/src/Novolis.Geopolitics.Scenarios/README.md) |
+| `Novolis.Geopolitics.Simulation` | `dotnet add package Novolis.Geopolitics.Simulation` | [README](https://github.com/Novolis-Platform/novolis-geopolitics/blob/main/src/Novolis.Geopolitics.Simulation/README.md) |
+| `Novolis.Geopolitics.Trade` | `dotnet add package Novolis.Geopolitics.Trade` | [README](https://github.com/Novolis-Platform/novolis-geopolitics/blob/main/src/Novolis.Geopolitics.Trade/README.md) |
+
+For NuGet.org and Visual Studio, the **embedded** README.md inside each package is authoritative.
+
+<!-- novolis-package-index:end -->
 # Novolis.Geopolitics
 
 Original, open-source full-world geopolitics simulation inspired by classic grand-strategy pillars (countries, provinces, military, diplomacy, budgets).
@@ -48,3 +99,4 @@ Embedded `world-seed.json` is an original procedural layout (~200 polities, ~1k 
 ## License
 
 MIT — see package metadata.
+

@@ -1,37 +1,38 @@
 using Novolis.Geopolitics.Core;
+using Novolis.Geopolitics.Diplomacy;
 
-namespace Novolis.Geopolitics.Simulation;
+namespace Novolis.Geopolitics.PolicyAgents;
 
-/// <summary>Deterministic monthly AI with acceptance gates and org-aware agendas.</summary>
-internal sealed class PolityAi(Random rng)
+/// <summary>Deterministic monthly heuristic policy agent with acceptance gates and org-aware agendas.</summary>
+public sealed class HeuristicPolicyAgent(Random rng)
 {
     private const int SoftCapCommonMarkets = 40;
     private const int SoftCapAlliances = 40;
 
-    public void RunMonth(WorldState world, GeoSimulationStats stats)
+    public void RunMonth(WorldState world, WorldTelemetry telemetry)
     {
         var order = Enumerable.Range(0, world.Polities.Count).ToList();
         Shuffle(order);
 
         foreach (var idx in order)
         {
-            Decide(world, stats, world.Polities[idx]);
+            Decide(world, telemetry, world.Polities[idx]);
         }
     }
 
-    private void Decide(WorldState world, GeoSimulationStats stats, Polity self)
+    private void Decide(WorldState world, WorldTelemetry telemetry, Polity self)
     {
         AdjustFiscalPolicy(self);
 
-        // Quiet force build — no spam event every month.
+        // Quiet capability expansion — a fiscal-policy nudge only; CivicEngine settles the
+        // Military stock from spend next month. No direct stock mutation here.
         if (self.Treasury > self.Gdp * 0.2 && self.Military.Total < self.Gdp * 0.002)
         {
             self.Policy.MilitaryShare = Math.Min(0.55, self.Policy.MilitaryShare + 0.02);
             SyncPolicyMirrors(self);
-            self.Military.Land += 5;
             if (rng.NextDouble() < 0.08)
             {
-                world.AddEvent(GeoEventKind.MilitaryBuild, $"{self.Name} expands land forces", self.Id);
+                world.AddEvent(GeoEventKind.ForceExpansion, $"{self.Name} expands land forces", self.Id);
             }
         }
 
@@ -50,8 +51,8 @@ internal sealed class PolityAi(Random rng)
                 {
                     war.Active = false;
                     war.EndedDay = world.Day;
-                    stats.WarsEnded++;
-                    Diplomacy.SignTreaty(world, stats, TreatyKind.Peace, war.Attacker, war.Defender, 360);
+                    telemetry.WarsEnded++;
+                    DiplomaticInstruments.SignTreaty(world, telemetry, TreatyKind.Peace, war.Attacker, war.Defender, 360);
                     world.AddEvent(
                         GeoEventKind.PeaceSigned,
                         $"Armistice: {world.Polity(war.Attacker).Name} / {world.Polity(war.Defender).Name}",
@@ -68,17 +69,17 @@ internal sealed class PolityAi(Random rng)
 
         if (rng.NextDouble() < 0.22)
         {
-            TryJoinOrg(world, stats, self);
+            TryJoinOrg(world, telemetry, self);
         }
 
         if (neighbors.Count > 0 && rng.NextDouble() < 0.35)
         {
-            TryDiplomacy(world, stats, self, neighbors, myWars.Count == 0);
+            TryDiplomacy(world, telemetry, self, neighbors, myWars.Count == 0);
         }
 
         if (neighbors.Count > 0 && rng.NextDouble() < 0.1)
         {
-            TryAidOrEmbargo(world, stats, self, neighbors);
+            TryAidOrEmbargo(world, telemetry, self, neighbors);
         }
 
         // War only with clear casus; civic legitimacy gates adventurism.
@@ -89,11 +90,11 @@ internal sealed class PolityAi(Random rng)
             && self.Military.Total > 80
             && rng.NextDouble() < 0.06)
         {
-            TryDeclareWar(world, stats, self, neighbors);
+            TryDeclareWar(world, telemetry, self, neighbors);
         }
     }
 
-    /// <summary>AI only mutates <see cref="StateFiscalPolicy"/>; CivicEngine settles stocks next month.</summary>
+    /// <summary>Agent only mutates <see cref="StateFiscalPolicy"/>; CivicEngine settles stocks next month.</summary>
     private static void AdjustFiscalPolicy(Polity self)
     {
         var p = self.Policy;
@@ -144,7 +145,7 @@ internal sealed class PolityAi(Random rng)
         self.MilitaryBudgetShare = self.Policy.MilitaryShare;
     }
 
-    private void TryJoinOrg(WorldState world, GeoSimulationStats stats, Polity self)
+    private void TryJoinOrg(WorldState world, WorldTelemetry telemetry, Polity self)
     {
         var candidates = world.ActiveOrgs
             .Where(o => !o.MemberIds.Contains(self.Id))
@@ -173,7 +174,7 @@ internal sealed class PolityAi(Random rng)
 
             if (rng.NextDouble() < appetite)
             {
-                Diplomacy.JoinOrg(world, stats, org, self.Id);
+                DiplomaticInstruments.JoinOrg(world, telemetry, org, self.Id);
                 return;
             }
         }
@@ -181,7 +182,7 @@ internal sealed class PolityAi(Random rng)
 
     private void TryDiplomacy(
         WorldState world,
-        GeoSimulationStats stats,
+        WorldTelemetry telemetry,
         Polity self,
         List<PolityId> neighbors,
         bool allowAlliance)
@@ -208,7 +209,7 @@ internal sealed class PolityAi(Random rng)
                 if (existing is not null
                     && DiplomaticRules.WouldAcceptBilateral(world, kind, self.Id, other))
                 {
-                    Diplomacy.JoinTreaty(world, stats, existing, self.Id);
+                    DiplomaticInstruments.JoinTreaty(world, telemetry, existing, self.Id);
                     return;
                 }
             }
@@ -260,19 +261,19 @@ internal sealed class PolityAi(Random rng)
                     .FirstOrDefault(t => t.Members.Contains(other) && !t.Members.Contains(self.Id));
                 if (existing is not null)
                 {
-                    Diplomacy.JoinTreaty(world, stats, existing, self.Id);
+                    DiplomaticInstruments.JoinTreaty(world, telemetry, existing, self.Id);
                     return;
                 }
             }
 
-            Diplomacy.SignTreaty(world, stats, kind, self.Id, other, DurationFor(kind));
+            DiplomaticInstruments.SignTreaty(world, telemetry, kind, self.Id, other, DurationFor(kind));
             return;
         }
     }
 
     private void TryAidOrEmbargo(
         WorldState world,
-        GeoSimulationStats stats,
+        WorldTelemetry telemetry,
         Polity self,
         List<PolityId> neighbors)
     {
@@ -282,22 +283,22 @@ internal sealed class PolityAi(Random rng)
 
         if ((rel < -40 || world.AreAtWar(self.Id, other)) && !world.AreEmbargoed(self.Id, other))
         {
-            Diplomacy.SignTreaty(world, stats, TreatyKind.EconomicEmbargo, self.Id, other, 720);
+            DiplomaticInstruments.SignTreaty(world, telemetry, TreatyKind.EconomicEmbargo, self.Id, other, 720);
             return;
         }
 
-        // Rich help poorer friend (SP2 economic aid homage).
+        // Rich help poorer friend.
         if (rel >= 20 && self.Treasury > self.Gdp * 0.12 && them.Gdp < self.Gdp * 0.45
             && !world.HaveTreaty(self.Id, other, TreatyKind.EconomicAid)
             && DiplomaticRules.WouldAcceptBilateral(world, TreatyKind.EconomicAid, self.Id, other))
         {
-            Diplomacy.SignTreaty(world, stats, TreatyKind.EconomicAid, self.Id, other, 360);
+            DiplomaticInstruments.SignTreaty(world, telemetry, TreatyKind.EconomicAid, self.Id, other, 360);
         }
     }
 
     private void TryDeclareWar(
         WorldState world,
-        GeoSimulationStats stats,
+        WorldTelemetry telemetry,
         Polity self,
         List<PolityId> neighbors)
     {
@@ -341,7 +342,7 @@ internal sealed class PolityAi(Random rng)
 
         if (target is { } t && best < 1.05)
         {
-            Diplomacy.DeclareWar(world, stats, self.Id, t);
+            DiplomaticInstruments.DeclareWar(world, telemetry, self.Id, t);
         }
     }
 
