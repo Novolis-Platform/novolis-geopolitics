@@ -51,7 +51,10 @@ For NuGet.org and Visual Studio, the **embedded** README.md inside each package 
 <!-- novolis-package-index:end -->
 # Novolis.Geopolitics
 
-Original, open-source full-world geopolitics simulation inspired by classic grand-strategy pillars (countries, provinces, military, diplomacy, budgets).
+Original, open-source full-world geopolitics simulation: state actors, provinces, military,
+diplomacy, and budgets settled through an Economy-style bounded minimum model — a pure kernel
+that settles fiscal and civic stocks from policy, plus independent engine packages for conflict,
+diplomacy, trade, and policy agendas.
 
 **Spiritual homage only.** Not affiliated with GolemLabs, THQ Nordic, or SuperPower. No SuperPower 2 SDK, database, assets, or string tables are used or redistributed.
 
@@ -59,8 +62,13 @@ Original, open-source full-world geopolitics simulation inspired by classic gran
 
 | Package | Role |
 |--------|------|
-| `Novolis.Geopolitics.Core` | Fundamentals: polities, civic/fiscal engine, resources, treaties, wars, seed |
-| `Novolis.Geopolitics.Simulation` | Middle layer: trade → civic → treaty effects → AI; diplomatic rules; combat |
+| `Novolis.Geopolitics.Core` | Kernel: `Polity`, `StateFiscalPolicy`, `CivicEngine.ApplyMonth`, `WorldState`, `WorldTelemetry` — see [SPEC.md](src/Novolis.Geopolitics.Core/SPEC.md) |
+| `Novolis.Geopolitics.Conflict` | Daily war-front battle resolution |
+| `Novolis.Geopolitics.Diplomacy` | Treaty/org lifecycle, acceptance rules, monthly treaty effects |
+| `Novolis.Geopolitics.Trade` | Domestic production and market clearing |
+| `Novolis.Geopolitics.PolicyAgents` | Deterministic heuristic policy agent (fiscal knobs + diplomacy) |
+| `Novolis.Geopolitics.Scenarios` | Procedural world generation, seed schema, institution seeding |
+| `Novolis.Geopolitics.Simulation` | Composition root: day tick wiring all engine packages together |
 
 Layering (Economy-aligned): [docs/layering.md](docs/layering.md). Supranationals: **Forum**, **DefenceAlliance**, **FreeTradeArea**, **CustomsUnion**, **ResearchForum**, **PoliticalUnion**.
 
