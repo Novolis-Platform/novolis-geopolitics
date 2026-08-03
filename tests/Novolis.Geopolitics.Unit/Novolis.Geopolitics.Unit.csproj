@@ -3,6 +3,8 @@
     <RootNamespace>Novolis.Geopolitics.Unit</RootNamespace>
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
+    <OutputType>Exe</OutputType>
+    <TestingPlatformDotnetTestSupport>true</TestingPlatformDotnetTestSupport>
     <NovolisStackAnalyzers>false</NovolisStackAnalyzers>
   </PropertyGroup>
   <ItemGroup>
