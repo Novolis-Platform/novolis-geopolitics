@@ -7,7 +7,7 @@
     <NoWarn>$(NoWarn);CS1591</NoWarn>
     <Description>
       Day/month geopolitics tick: budgets, combat, treaties, and deterministic AI agendas.
-    </Description>
+     Publish-ready stack package.</Description>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\Novolis.Geopolitics.Core\Novolis.Geopolitics.Core.csproj" />
