@@ -10,6 +10,7 @@
   <ItemGroup>
     <PackageReference Include="TUnit" />
     <ProjectReference Include="..\..\src\Novolis.Geopolitics.Core\Novolis.Geopolitics.Core.csproj" />
+    <ProjectReference Include="..\..\src\Novolis.Geopolitics.Conflict\Novolis.Geopolitics.Conflict.csproj" />
     <ProjectReference Include="..\..\src\Novolis.Geopolitics.Diplomacy\Novolis.Geopolitics.Diplomacy.csproj" />
     <ProjectReference Include="..\..\src\Novolis.Geopolitics.Scenarios\Novolis.Geopolitics.Scenarios.csproj" />
     <ProjectReference Include="..\..\src\Novolis.Geopolitics.Simulation\Novolis.Geopolitics.Simulation.csproj" />
