@@ -15,15 +15,15 @@ Layering (Economy-aligned): [docs/layering.md](docs/layering.md). Supranationals
 
 See [docs/diplomacy-homage.md](docs/diplomacy-homage.md) for SP2-inspired pillar mapping (homage only).
 
-## Dogfood UI (GeoPolity)
+## Product host (GeoPolity)
 
-Default interactive shell is **Avalonia**. Shared session controllers power Avalonia, Spectre, and Agent Surface.
+Interactive Avalonia / Spectre / headless session lives in **novolis-apps** (not this library repo):
 
 ```powershell
-dotnet run --project d:\novolis\novolis-geopolitics\apps\GeoPolity -p:NovolisUseProjectReferences=true
-dotnet run --project d:\novolis\novolis-geopolitics\apps\GeoPolity -p:NovolisUseProjectReferences=true -- --mode spectre
-dotnet run --project d:\novolis\novolis-geopolitics\apps\GeoPolity -p:NovolisUseProjectReferences=true -- --headless --years 50
-dotnet run --project d:\novolis\novolis-geopolitics\apps\GeoPolity -p:NovolisUseProjectReferences=true -- --headless --years 10 --agent
+dotnet run --project d:\novolis\novolis-apps\src\GeoPolity -p:NovolisUseProjectReferences=true
+dotnet run --project d:\novolis\novolis-apps\src\GeoPolity -p:NovolisUseProjectReferences=true -- --mode spectre
+dotnet run --project d:\novolis\novolis-apps\src\GeoPolity -p:NovolisUseProjectReferences=true -- --headless --years 50
+dotnet run --project d:\novolis\novolis-apps\src\GeoPolity -p:NovolisUseProjectReferences=true -- --headless --years 10 --agent
 ```
 
 Keys (both UIs): **Space** run/pause · **1–5** speed · **Q** quit. Human session starts **paused**.

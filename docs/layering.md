@@ -4,7 +4,7 @@ Mirror of [Novolis.Economy.Core](../../novolis-economy/src/Novolis.Economy.Core/
 
 ```text
 ┌─────────────────────────────────────────────────────────┐
-│  apps/GeoPolity  — UI / headless report (presentation) │
+│  novolis-apps/src/GeoPolity  — UI / headless (presentation) │
 └────────────────────────────▲────────────────────────────┘
                              │ observes WorldState + Stats
 ┌────────────────────────────┴────────────────────────────┐

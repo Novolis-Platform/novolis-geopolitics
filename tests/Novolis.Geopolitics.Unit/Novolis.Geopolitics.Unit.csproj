@@ -7,7 +7,6 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="TUnit" />
-    <ProjectReference Include="..\..\apps\GeoPolity\GeoPolity.csproj" />
     <ProjectReference Include="..\..\src\Novolis.Geopolitics.Core\Novolis.Geopolitics.Core.csproj" />
     <ProjectReference Include="..\..\src\Novolis.Geopolitics.Simulation\Novolis.Geopolitics.Simulation.csproj" />
   </ItemGroup>
