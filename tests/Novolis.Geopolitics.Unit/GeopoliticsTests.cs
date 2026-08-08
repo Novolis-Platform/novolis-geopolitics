@@ -360,7 +360,9 @@ public sealed class TradeTests
 
 public sealed class HeadlessSmokeTests
 {
+    /// <summary>Full-world 10y advance (~55s). Opt-in only so Platform.slnx stays fast.</summary>
     [Test]
+    [Explicit]
     public async Task TenYear_Advance_Completes()
     {
         var world = DefaultWorld.Load();
