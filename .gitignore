@@ -7,3 +7,6 @@ artifacts/
 .DS_Store
 *.nupkg
 *.snupkg
+# MTP / VS test output
+TestResults/
+[Tt]est[Rr]esults/
