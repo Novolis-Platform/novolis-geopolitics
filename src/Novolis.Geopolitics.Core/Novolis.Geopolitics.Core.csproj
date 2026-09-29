@@ -11,6 +11,6 @@
     </Description>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Novolis.Civics.Core" />
+    <LibraryReference Include="Novolis.Civics.Core" />
   </ItemGroup>
 </Project>
