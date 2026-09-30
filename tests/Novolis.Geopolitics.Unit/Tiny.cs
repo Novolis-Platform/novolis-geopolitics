@@ -6,7 +6,7 @@ using Novolis.Geopolitics.Trade;
 
 namespace Novolis.Geopolitics.Unit;
 
-file static class Tiny
+static class Tiny
 {
     public static Polity Polity(int id, string name, GovernmentType gov, double milShare = 0.28) => new()
     {
